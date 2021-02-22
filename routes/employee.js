@@ -1,15 +1,33 @@
 import express from "express";
-import { getUser, saveUser_c } from "../controller/employee.js";
-import empModel from "../models/Employee.js";
+import {
+  deleteEmployee,
+  getAllEmployees,
+  getEmployeeName,
+  getEmployee,
+  saveEmployee,
+} from "../controller/employee.js";
+//import { authorizeEmp } from "../middleware/verify.actor.js";
 
 const empRouter = express.Router();
 
 empRouter.get("/", (req, res) => {
-  getUser(req, res);
+  getEmployee(req, res);
+});
+
+empRouter.get("/name", (req, res) => {
+  getEmployeeName(req, res);
 });
 
 empRouter.post("/", (req, res) => {
-  saveUser_c(req, res);
+  saveEmployee(req, res);
+});
+
+empRouter.delete("/", (req, res) => {
+  deleteEmployee(req, res);
+});
+
+empRouter.get("/all", (req, res) => {
+  getAllEmployees(req, res);
 });
 
 export default empRouter;

@@ -1,0 +1,324 @@
+{
+	"info": {
+		"_postman_id": "480b1b7e-61cf-4fb9-9152-298c1e71c370",
+		"name": "node Employee",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Codes",
+			"item": [
+				{
+					"name": "routes",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "import express from \"express\";\r\nimport {\r\n  deleteEmployee,\r\n  getAllEmployees,\r\n  getEmployee,\r\n  saveEmployee,\r\n} from \"../controller/employee.js\";\r\nimport empModel from \"../models/Employee.js\";\r\n\r\nconst empRouter = express.Router();\r\n\r\nempRouter.get(\"/\", (req, res) => {\r\n  getEmployee(req, res);\r\n});\r\n\r\nempRouter.post(\"/\", (req, res) => {\r\n  saveEmployee(req, res);\r\n});\r\n\r\nempRouter.delete(\"/\", (req, res) => {\r\n  deleteEmployee(req, res);\r\n});\r\n\r\nempRouter.get(\"/all\", (req, res) => {\r\n  getAllEmployees(req, res);\r\n});\r\n\r\nexport default empRouter;\r\n"
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "controller",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "import {\r\n  getEmpById,\r\n  saveEmp,\r\n  deleteEmpById,\r\n  getAllEmp,\r\n} from \"../services/employee.js\";\r\n\r\nconst saveEmployee = async (req, res) => {\r\n  const user = await saveEmp(req.body);\r\n  if (user != null) {\r\n    return res.status(201).send(user);\r\n  } else return res.sendStatus(400);\r\n};\r\n\r\nconst getEmployee = async (req, res) => {\r\n  const user = await getEmpById(req.query.userId);\r\n  if (user != null) {\r\n    return res.status(200).send(user);\r\n  } else return res.sendStatus(204);\r\n};\r\n\r\nconst deleteEmployee = (req, res) => {\r\n  deleteEmpById(req.query.userId);\r\n  return res.sendStatus(204);\r\n};\r\n\r\nconst getAllEmployees = async (req, res) => {\r\n  const employees = await getAllEmp();\r\n  if (employees.length > 0) {\r\n    return res.status(200).send(employees);\r\n  } else return res.sendStatus(204);\r\n};\r\n\r\nexport { saveEmployee, getEmployee, deleteEmployee, getAllEmployees };\r\n"
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "service ",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "import empModel from \"../models/Employee.js\";\r\n\r\nconst saveEmp = async (data) => {\r\n  const emp = await empModel.create({\r\n    name: data.name,\r\n    empId: data.empId,\r\n    location: data.location,\r\n    company: data.company,\r\n  });\r\n\r\n  return emp;\r\n};\r\n\r\nconst getEmpById = async (userId) => {\r\n  return await empModel.findByPk(userId);\r\n};\r\n\r\nconst deleteEmpById = async (userId) => {\r\n  return await empModel.destroy({\r\n    where: {\r\n      id: userId,\r\n    },\r\n  });\r\n};\r\n\r\nconst getAllEmp = async ()=>{\r\nreturn await empModel.findAll();\r\n}\r\n\r\nexport { saveEmp , getEmpById, deleteEmpById, getAllEmp };\r\n"
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "test",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "import { getAllEmp } from \"../services/employee.js\";\r\nimport server from \"../index.js\";\r\n\r\nimport chai, { expect } from \"chai\";\r\nimport chaiHttp from \"chai-http\";\r\n\r\nchai.use(chaiHttp);\r\n\r\nconst user = {\r\n  name: \"xyz\",\r\n  empId: \"20\",\r\n  location: \"GDV\",\r\n  company: \"mine\",\r\n};\r\n\r\ndescribe(\"Employee!\", () => {\r\n  it(\"get employee endpoint\", (done) => {\r\n    const userId = 1;\r\n    chai\r\n      .request(server)\r\n      .get(`/emp?userId=${userId}`)\r\n      .end((err, res) => {\r\n        expect(res).to.have.status(200);\r\n        done();\r\n      });\r\n  });\r\n\r\n  it(\"save employee endpoint\", (done) => {\r\n    chai\r\n      .request(server)\r\n      .post(`/emp`)\r\n      .send(user)\r\n      .end((err, res) => {\r\n        expect(res).to.have.status(201);\r\n        done();\r\n      });\r\n  });\r\n\r\n  it(\"delete employee endpoint\", async () => {\r\n    const users = await getAllEmp();\r\n    const userId = users.pop().id;\r\n    chai\r\n      .request(server)\r\n      .delete(`/emp?userId=${userId}`)\r\n      .end((err, res) => {\r\n        expect(res).to.have.status(204);\r\n      });\r\n  });\r\n\r\n  it(\"get all employees endpoint\", (done) => {\r\n    chai\r\n      .request(server)\r\n      .get(`/emp/all`)\r\n      .end((err, res) => {\r\n        expect(res).to.have.status(200);\r\n        done();\r\n      });\r\n  });\r\n});\r\n\r\nserver.close();\r\n\r\n/* describe(\"emp controller\", function () {\r\n  describe(\"#save()\", function () {\r\n    it(\"should save without error\", async function () {\r\n      const user_ = await saveEmp(user);\r\n      assert.notEqual(user_, null);\r\n    });\r\n  });\r\n});\r\n\r\n */\r\n\r\n/* describe(\"Server!\", () => {\r\n  it(\"welcomes user to the api\", (done) => {\r\n    chai\r\n      .request(app)\r\n      .get(\"/\")\r\n      .end((err, res) => {\r\n        expect(res).to.have.status(200);\r\n        done();\r\n      });\r\n  });\r\n}); */\r\n"
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "get emp",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImtyaWtAa3Jpay5jb20iLCJpYXQiOjE2MTM3NDE5Mzd9.wXLgQDCLc0EKdmd2OTCZkRDQnEzz4DOandZmeWvLMd8",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/emp?userId=1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"emp"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add actor",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"KriK\",\r\n    \"password\": \"afc123\",\r\n    \"email\": \"krik@krik.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/actor",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete actor",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/actor?email=krik@krik.com",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "krik@krik.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"password\": \"afc123\",\r\n    \"email\": \"krik@krik.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/actor/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"actor",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get emp by Name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/emp/name?name=Krishna",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"emp",
+						"name"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "Krishna"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add employee",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Krishna\",\r\n    \"empId\": \"8065338\",\r\n    \"location\": \"Mudinepalli\",\r\n    \"company\": \"Virtusa\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/emp",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"emp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete emp",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/emp?userId=29",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"emp"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "29"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all emp",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/emp/all",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"emp",
+						"all"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:3123"
+		}
+	]
+}
