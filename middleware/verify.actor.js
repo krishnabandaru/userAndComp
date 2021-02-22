@@ -20,16 +20,12 @@ const getEmployee = async (req, res) => {
   } else return res.sendStatus(204);
 };
 
-
 const getEmployeeName = async (req, res) => {
   const user = await getEmpByName(req.query.name);
   if (user != null) {
     return res.status(200).send(user);
   } else return res.sendStatus(204);
 };
-
-
-
 
 const deleteEmployee = (req, res) => {
   deleteEmpById(req.query.userId);
@@ -43,4 +39,10 @@ const getAllEmployees = async (req, res) => {
   } else return res.sendStatus(204);
 };
 
-export { saveEmployee, getEmployee, deleteEmployee, getAllEmployees, getEmployeeName };
+export {
+  saveEmployee,
+  getEmployee,
+  deleteEmployee,
+  getAllEmployees,
+  getEmployeeName,
+};

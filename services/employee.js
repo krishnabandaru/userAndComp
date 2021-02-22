@@ -1,6 +1,6 @@
 import empModel from "../models/Employee.js";
 
-const saveUser = async (data) => {
+const saveEmp = async (data) => {
   const emp = await empModel.create({
     name: data.name,
     empId: data.empId,
@@ -11,8 +11,28 @@ const saveUser = async (data) => {
   return emp;
 };
 
-const getUserById = async (userId) => {
+const getEmpById = async (userId) => {
   return await empModel.findByPk(userId);
 };
 
-export { saveUser, getUserById };
+const deleteEmpById = async (userId) => {
+  return await empModel.destroy({
+    where: {
+      id: userId,
+    },
+  });
+};
+
+const getAllEmp = async () => {
+  return await empModel.findAll();
+};
+
+const getEmpByName = async (userName) => {
+  return await empModel.findOne({
+    where: {
+      name: userName,
+    },
+  });
+};
+
+export { saveEmp, getEmpById, getEmpByName, deleteEmpById, getAllEmp };

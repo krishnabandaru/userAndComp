@@ -2,6 +2,7 @@ import express from "express";
 
 import dotenv from "dotenv";
 import empRouter from "./routes/employee.js";
+import actorRouter from "./routes/actor.js";
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,10 @@ app.get("/", (req, res) => {
 
 app.use("/emp", empRouter);
 
-app.listen(port, () => {
+app.use("/actor", actorRouter);
+
+const server = app.listen(port, () => {
   console.log(`Server started at port no ${port}`);
 });
+
+export default server;
